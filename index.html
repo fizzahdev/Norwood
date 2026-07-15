@@ -1,0 +1,601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nordwood | Quiet, Considered Furniture</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Playfair+Display:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Playfair Display', 'serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        .page { display: none; }
+        .page.active { display: block; }
+    </style>
+</head>
+<body class="bg-[#FAF9F6] text-stone-800 font-sans antialiased flex flex-col min-h-screen">
+
+    <!-- Header / Navigation -->
+    <header class="border-b border-stone-200/60 sticky top-0 bg-[#FAF9F6]/90 backdrop-blur-md z-40">
+        <div class="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
+            <a href="#" onclick="navigate('home')" class="text-2xl font-serif tracking-wide font-semibold text-stone-900">
+                <span class="text-amber-700">N</span>ordwood
+            </a>
+            
+            <nav class="hidden md:flex items-center space-x-10 text-sm font-medium tracking-wide text-stone-600">
+                <button onclick="navigate('home')" class="nav-link hover:text-stone-900 transition-colors focus:outline-none">Home</button>
+                <button onclick="navigate('shop')" class="nav-link hover:text-stone-900 transition-colors focus:outline-none">Shop</button>
+                <button onclick="navigate('about')" class="nav-link hover:text-stone-900 transition-colors focus:outline-none">About</button>
+                <button onclick="navigate('contact')" class="nav-link hover:text-stone-900 transition-colors focus:outline-none">Contact</button>
+            </nav>
+
+            <div class="flex items-center space-x-6">
+                <!-- Cart Trigger Button -->
+                <button onclick="toggleCart()" class="relative hover:text-amber-700 transition-colors focus:outline-none" aria-label="Shopping Cart">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 10.5V6a3.75 3.75 0 1 0-7.5 0v4.5m11.356-1.993 1.263 12c.07.665-.45 1.243-1.119 1.243H4.25a1.125 1.125 0 0 1-1.12-1.243l1.264-12A1.125 1.125 0 0 1 5.513 7.5h12.974c.576 0 1.059.435 1.119 1.007ZM8.625 10.5a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Zm7.5 0a.375.375 0 1 1-.75 0 .375.375 0 0 1 .75 0Z" />
+                    </svg>
+                    <!-- Cart Item Count Badge -->
+                    <span id="cart-count" class="absolute -top-2 -right-2 bg-amber-700 text-white text-[10px] w-5 h-5 rounded-full flex items-center justify-center font-bold hidden">0</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Slide-out Cart Panel (Sidebar Drawer) -->
+    <div id="cart-sidebar" class="fixed inset-0 z-50 translate-x-full transition-transform duration-300 ease-in-out" aria-modal="true" role="dialog">
+        <!-- Overlay -->
+        <div class="absolute inset-0 bg-black/40" onclick="toggleCart()"></div>
+        <!-- Cart panel container -->
+        <div class="absolute right-0 top-0 h-full w-full max-w-md bg-white shadow-2xl flex flex-col">
+            <div class="p-6 border-b border-stone-200 flex items-center justify-between">
+                <h2 class="text-xl font-serif text-stone-900">Your Shopping Cart</h2>
+                <button onclick="toggleCart()" class="text-stone-500 hover:text-stone-900 focus:outline-none">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+            
+            <!-- Cart Items Scrollable List -->
+            <div id="cart-items" class="flex-1 overflow-y-auto p-6 space-y-6">
+                <p id="empty-cart-msg" class="text-stone-500 text-center py-8">Your cart is empty.</p>
+            </div>
+
+            <!-- Cart Footer -->
+            <div class="p-6 border-t border-stone-200 bg-stone-50">
+                <div class="flex justify-between items-center mb-6">
+                    <span class="text-stone-600 font-medium">Subtotal</span>
+                    <span id="cart-total" class="text-xl font-semibold text-stone-900">$0.00</span>
+                </div>
+                <button onclick="checkout()" class="w-full bg-stone-900 hover:bg-amber-700 text-white text-sm font-semibold tracking-wider uppercase py-4 transition-colors">
+                    Proceed to Checkout
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MAIN CONTENT CONTAINERS -->
+    <main class="flex-1">
+
+        <!-- ================= HOME PAGE ================= -->
+        <div id="page-home" class="page active">
+            <!-- Hero Section -->
+            <section class="relative h-[80vh] min-h-[500px] flex items-center overflow-hidden">
+                <div class="absolute inset-0">
+                    <img alt="Modern living room" src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?auto=format&fit=crop&w=1920&q=80" class="w-full h-full object-cover">
+                    <div class="absolute inset-0 bg-black/25"></div>
+                </div>
+                
+                <div class="relative max-w-7xl mx-auto px-6 w-full z-10 text-white">
+                    <div class="max-w-2xl">
+                        <p class="text-sm uppercase tracking-widest mb-4 font-medium text-stone-200">New Collection · 2026</p>
+                        <h1 class="text-5xl md:text-7xl font-serif mb-6 leading-tight font-light">
+                            Furniture that <br><span class="italic">quietly stays.</span>
+                        </h1>
+                        <p class="text-lg md:text-xl text-stone-100 font-light max-w-lg mb-8 leading-relaxed">
+                            Sofas, chairs and tables built from solid oak, marble and boucle — designed to slow the room down.
+                        </p>
+                        <div class="flex flex-wrap gap-4">
+                            <button onclick="navigate('shop')" class="bg-white text-stone-900 px-8 py-4 font-medium hover:bg-amber-700 hover:text-white transition-colors text-sm tracking-wider uppercase">
+                                Shop the collection
+                            </button>
+                            <button onclick="navigate('about')" class="border border-white/60 text-white px-8 py-4 font-medium hover:bg-white/10 transition-all text-sm tracking-wider uppercase backdrop-blur-sm">
+                                Our story
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Home Promo Text -->
+            <section class="max-w-7xl mx-auto px-6 py-16 text-center">
+                <div class="max-w-3xl mx-auto">
+                    <h2 class="text-3xl md:text-4xl font-serif text-stone-900 mb-4">Designed to last lifetimes.</h2>
+                    <p class="text-stone-600 leading-relaxed text-sm md:text-base">
+                        We believe in quiet spaces. Our pieces are thoughtfully constructed using natural materials, minimalist design structures, and classic craftsmanship techniques.
+                    </p>
+                </div>
+            </section>
+
+            <!-- NEW: Featured Products Carousel/Grid on Home Page -->
+            <section class="max-w-7xl mx-auto px-6 pb-24">
+                <div class="text-center mb-10">
+                    <p class="text-xs uppercase tracking-widest text-amber-700 font-semibold mb-1">Curated Classics</p>
+                    <h2 class="text-3xl font-serif text-stone-900">Featured In-Store</h2>
+                </div>
+                
+                <!-- Dynamic Home Products Grid (Renders top 4 items) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12 mb-12" id="home-featured-grid">
+                    <!-- Dynamic Featured Items load here -->
+                </div>
+
+                <!-- Explore More Button -->
+                <div class="text-center">
+                    <button onclick="navigate('shop')" class="inline-flex items-center space-x-3 bg-stone-900 hover:bg-amber-700 text-white text-xs font-semibold tracking-widest uppercase px-8 py-4 transition-colors">
+                        <span>Explore More Products</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M13.5 4.5 21 12m0 0-7.5 7.5M21 12H3" />
+                        </svg>
+                    </button>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= SHOP PAGE ================= -->
+        <div id="page-shop" class="page">
+            <section class="max-w-7xl mx-auto px-6 py-16">
+                <div class="mb-12">
+                    <p class="text-xs uppercase tracking-widest text-amber-700 font-semibold mb-2">Our Store Catalog</p>
+                    <h1 class="text-4xl font-serif text-stone-900 mb-4">Explore Selected Pieces</h1>
+                    <p class="text-stone-500 text-sm">Showing 30+ meticulously designed pieces for your home.</p>
+                </div>
+
+                <!-- Interactive Shop Products Grid -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-6 gap-y-12" id="shop-products-grid">
+                    <!-- Dynamic Items render via JavaScript -->
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= ABOUT PAGE ================= -->
+        <div id="page-about" class="page">
+            <section class="max-w-4xl mx-auto px-6 py-20">
+                <h1 class="text-4xl md:text-5xl font-serif text-stone-900 mb-8 text-center">Our Philosophy</h1>
+                <div class="prose prose-stone mx-auto text-stone-600 space-y-6 leading-relaxed">
+                    <p class="text-lg">
+                        At Nordwood, we begin with a single, clear promise: to make furniture that quietly exists as a supportive foundation of your daily life.
+                    </p>
+                    <img alt="Workshop craftsmanship" src="https://images.unsplash.com/photo-1581858726788-75bc0f6a952d?auto=format&fit=crop&w=1200&q=80" class="w-full h-[400px] object-cover my-10">
+                    <h3 class="font-serif text-2xl text-stone-900 pt-4">Responsible Materials</h3>
+                    <p>
+                        We sourcing wood only from FSC-certified sustainable forests. Each solid block of timber is inspect individually by our master joiners to assure the grain pattern complements the physical blueprint of the item it will build.
+                    </p>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= CONTACT PAGE ================= -->
+        <div id="page-contact" class="page">
+            <section class="max-w-7xl mx-auto px-6 py-20">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+                    <div>
+                        <p class="text-xs uppercase tracking-widest text-amber-700 font-semibold mb-2">Get in touch</p>
+                        <h1 class="text-4xl font-serif text-stone-900 mb-6">We'd love to hear from you</h1>
+                        <p class="text-stone-600 mb-8 leading-relaxed">
+                            Have questions about custom sizing, shipping options, or material choices? Drop us a line and our dedicated care team will reply within 24 hours.
+                        </p>
+                        
+                        <div class="space-y-4 text-sm text-stone-700">
+                            <p><strong>Showroom Address:</strong> hyd pak latifabad main kahein toh </p>
+                            <p><strong>Email Us:</strong> support@nordwood.com</p>
+                            <p><strong>Call Us:</strong> +92 3190042819</p>
+                        </div>
+                    </div>
+
+                    <!-- Contact Form -->
+                    <div class="bg-white p-8 border border-stone-200">
+                        <form onsubmit="handleContactSubmit(event)" class="space-y-6">
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-semibold mb-2">Full Name</label>
+                                <input type="text" required class="w-full bg-stone-50 border border-stone-200 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-semibold mb-2">Email Address</label>
+                                <input type="email" required class="w-full bg-stone-50 border border-stone-200 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-700">
+                            </div>
+                            <div>
+                                <label class="block text-xs uppercase tracking-wider font-semibold mb-2">Your Message</label>
+                                <textarea rows="5" required class="w-full bg-stone-50 border border-stone-200 p-3 text-sm focus:outline-none focus:ring-1 focus:ring-amber-700"></textarea>
+                            </div>
+                            <button type="submit" class="w-full bg-stone-900 hover:bg-amber-700 text-white text-xs font-semibold uppercase tracking-widest py-4 transition-colors">
+                                Send Message
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- Brand Benefits (Universal Section) -->
+        <section class="border-t border-b border-stone-200/60 bg-stone-100/50">
+            <div class="max-w-7xl mx-auto px-6 py-16 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                <div>
+                    <h3 class="font-serif text-lg text-stone-900 mb-2">Made to last</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">Solid hardwoods and honest joinery built for generations.</p>
+                </div>
+                <div>
+                    <h3 class="font-serif text-lg text-stone-900 mb-2">10-year warranty</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">On every single frame we proudly craft and build.</p>
+                </div>
+                <div>
+                    <h3 class="font-serif text-lg text-stone-900 mb-2">Free delivery</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">Free, fully insured standard delivery on orders over $150.</p>
+                </div>
+                <div>
+                    <h3 class="font-serif text-lg text-stone-900 mb-2">Considered support</h3>
+                    <p class="text-stone-600 text-sm leading-relaxed">Real design-oriented people, active seven days a week.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-stone-900 text-stone-300 py-16 border-t border-stone-800">
+        <div class="max-w-7xl mx-auto px-6 grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
+            <div>
+                <h3 class="font-serif text-2xl text-white mb-4 tracking-wide"><span class="text-amber-500">N</span>ordwood.</h3>
+                <p class="text-stone-400 text-sm leading-relaxed">
+                    Quiet, considered furniture crafted from responsibly sourced wood and natural fibres.
+                </p>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-widest text-white font-semibold mb-4">Links</p>
+                <ul class="space-y-2 text-sm">
+                    <li><button onclick="navigate('home')" class="hover:text-white transition-colors">Home</button></li>
+                    <li><button onclick="navigate('shop')" class="hover:text-white transition-colors">Shop</button></li>
+                    <li><button onclick="navigate('about')" class="hover:text-white transition-colors">About</button></li>
+                    <li><button onclick="navigate('contact')" class="hover:text-white transition-colors">Contact</button></li>
+                </ul>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-widest text-white font-semibold mb-4">Help</p>
+                <ul class="space-y-2 text-sm">
+                    <li><a href="#" class="hover:text-white transition-colors">Payment Options</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Returns</a></li>
+                    <li><a href="#" class="hover:text-white transition-colors">Privacy Policy</a></li>
+                </ul>
+            </div>
+            <div>
+                <p class="text-xs uppercase tracking-widest text-white font-semibold mb-4">Newsletter</p>
+                <form class="flex flex-col gap-2" id="newsletter-form" onsubmit="handleNewsletter(event)">
+                    <input type="email" required placeholder="Your email address" class="bg-stone-800 text-stone-100 placeholder-stone-500 text-sm px-4 py-2.5 outline-none focus:ring-1 focus:ring-amber-500 transition-all border border-stone-700">
+                    <button type="submit" class="bg-white hover:bg-amber-600 hover:text-white text-stone-900 text-xs font-semibold uppercase tracking-wider py-2.5 transition-colors">
+                        Subscribe
+                    </button>
+                </form>
+            </div>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 pt-8 border-t border-stone-800 text-xs text-stone-500 flex justify-between items-center">
+            <p>© 2026 Nordwood. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <!-- INTERACTIVE APP SCRIPT -->
+    <script>
+        // --- 1. PRODUCT DATABASE (30+ Unique Furniture & Lifestyle Pieces) ---
+        const PRODUCTS = [
+            { id: 1, name: "Halden Sofa", type: "Boucle 3-seater", price: 1290, oldPrice: 1590, tag: "-20%", img: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=600&q=80" },
+            { id: 2, name: "Fjord Chair", type: "Solid oak", price: 320, oldPrice: null, tag: "New", img: "https://images.unsplash.com/photo-1567538096630-e0c55bd6374c?auto=format&fit=crop&w=600&q=80" },
+            { id: 3, name: "Luna Table", type: "Marble & brass", price: 780, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1577140917170-285929fb55b7?auto=format&fit=crop&w=600&q=80" },
+            { id: 4, name: "Palma Lounge", type: "Woven rattan", price: 540, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80" },
+            { id: 5, name: "Soren Desk", type: "Smoked Oak Study Desk", price: 890, oldPrice: 1100, tag: "Sale", img: "https://images.unsplash.com/photo-1518455027359-f3f8164ba6bd?auto=format&fit=crop&w=600&q=80" },
+            { id: 6, name: "Astrid Pendant", type: "Brushed Brass Light", price: 190, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80" },
+            { id: 7, name: "Odense Bed Frame", type: "Walnut King Bed", price: 1450, oldPrice: null, tag: "New", img: "https://images.unsplash.com/photo-1505693416388-ac5ce068fe85?auto=format&fit=crop&w=600&q=80" },
+            { id: 8, name: "Koben Shelf", type: "Modular Oak Bookcase", price: 410, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1594620302200-9a762244a156?auto=format&fit=crop&w=600&q=80" },
+            { id: 9, name: "Visby Lounge Chair", type: "Leather & Walnut", price: 650, oldPrice: 750, tag: "-15%", img: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=600&q=80" },
+            { id: 10, name: "Malmo Sideboard", type: "Minimalist Cabinet", price: 920, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1595428774223-ef52624120d2?auto=format&fit=crop&w=600&q=80" },
+            { id: 11, name: "Bergen Pouf", type: "Soft Wool Ottoman", price: 150, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1583847268964-b28dc8f51f92?auto=format&fit=crop&w=600&q=80" },
+            { id: 12, name: "Helsinki Dining Table", type: "Solid Ashwood", price: 1150, oldPrice: null, tag: "Popular", img: "https://images.unsplash.com/photo-1615066390971-03e4e1c36ddf?auto=format&fit=crop&w=600&q=80" },
+            { id: 13, name: "Ribe Mirror", type: "Organic Brass Outline", price: 210, oldPrice: 260, tag: "Sale", img: "https://images.unsplash.com/photo-1617103996702-96ff29b1c467?auto=format&fit=crop&w=600&q=80" },
+            { id: 14, name: "Silkeborg Bench", type: "Oak Entryway Bench", price: 280, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=600&q=80" },
+            { id: 15, name: "Dovre Rug", type: "Handwoven Cotton", price: 340, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format&fit=crop&w=600&q=80" },
+            { id: 16, name: "Skagen Lounge Sofa", type: "Deep-Sit Linen", price: 1850, oldPrice: 2100, tag: "-12%", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" },
+            { id: 17, name: "Vejle Floor Lamp", type: "Industrial Matte Black", price: 175, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80" },
+            { id: 18, name: "Nibe Coffee Table", type: "Travertine Stone", price: 690, oldPrice: null, tag: "New", img: "https://images.unsplash.com/photo-1604014237800-1c9102c219da?auto=format&fit=crop&w=600&q=80" },
+            { id: 19, name: "Ystad Armchair", type: "Olive Corduroy", price: 480, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1580481072645-022f9a6dbf27?auto=format&fit=crop&w=600&q=80" },
+            { id: 20, name: "Nyborg Nightstand", type: "Floating Walnut Wood", price: 230, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1598300042247-d088f8ab3a91?auto=format&fit=crop&w=600&q=80" },
+            { id: 21, name: "Gimo Cushion Set", type: "Organic Linen Covers", price: 65, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1584100936595-c0654b55a2e2?auto=format&fit=crop&w=600&q=80" },
+            { id: 22, name: "Kalmar Console Table", type: "Sleek Blackened Steel", price: 510, oldPrice: 590, tag: "Sale", img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80" },
+            { id: 23, name: "Oland Ceramic Vase", type: "Handmade Terracotta", price: 45, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1578500494198-246f612d3b3d?auto=format&fit=crop&w=600&q=80" },
+            { id: 24, name: "Taby Bar Stool", type: "Rattan Kitchen Chair", price: 180, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1503602642458-232111445657?auto=format&fit=crop&w=600&q=80" },
+            { id: 25, name: "Alingsas Side Table", type: "Sculptural Concrete", price: 290, oldPrice: null, tag: "New", img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=600&q=80" },
+            { id: 26, name: "Lund Accent Cabinet", type: "Oak Reeded Glass Doors", price: 880, oldPrice: 1050, tag: "-16%", img: "https://images.unsplash.com/photo-1601084881623-cef5a7de343a?auto=format&fit=crop&w=600&q=80" },
+            { id: 27, name: "Vardo Desk Organizer", type: "Crafted Walnut Wood", price: 55, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1513151233558-d860c5398176?auto=format&fit=crop&w=600&q=80" },
+            { id: 28, name: "Karlstad Easy Sofa", type: "Soft Shearling Seat", price: 1400, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1493663284031-b7e3aefcae8e?auto=format&fit=crop&w=600&q=80" },
+            { id: 29, name: "Eslöv Table Lamp", type: "Handblown Milk Glass", price: 120, oldPrice: 150, tag: "Sale", img: "https://images.unsplash.com/photo-1507473885765-e6ed057f782c?auto=format&fit=crop&w=600&q=80" },
+            { id: 30, name: "Bora Bedside Rug", type: "Thick Icelandic Sheepskin", price: 210, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1600121848594-d8644e57abab?auto=format&fit=crop&w=600&q=80" },
+            { id: 31, name: "Haro Room Divider", type: "Oak Wood Slats", price: 470, oldPrice: null, tag: "New", img: "https://images.unsplash.com/photo-1586023492125-27b2c045efd7?auto=format&fit=crop&w=600&q=80" },
+            { id: 32, name: "Floda Plant Stand", type: "Minimal Slate & Metal", price: 85, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=600&q=80" },
+            { id: 33, name: "Vaxjo Wall Sconce", type: "Opal Glass & Steel", price: 135, oldPrice: null, tag: null, img: "https://images.unsplash.com/photo-1513694203232-719a280e022f?auto=format&fit=crop&w=600&q=80" },
+            { id: 34, name: "Laholm Lounge Sofa", type: "Charcoal Velvet", price: 1650, oldPrice: 1900, tag: "-13%", img: "https://images.unsplash.com/photo-1555041469-a586c61ea9bc?auto=format&fit=crop&w=600&q=80" }
+        ];
+
+        // --- 2. STATE ---
+        let cart = [];
+
+        // --- 3. PAGE NAVIGATION ROUTER ---
+        function navigate(pageId) {
+            // Hide all pages
+            document.querySelectorAll('.page').forEach(page => page.classList.remove('active'));
+            
+            // Show requested page
+            const targetPage = document.getElementById(`page-${pageId}`);
+            if (targetPage) {
+                targetPage.classList.add('active');
+            }
+            
+            // Scroll to top of the page
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        // --- 4. QUANTITY SELECTORS ON MAIN CARDS (Scoped by page prefix) ---
+        function incrementCardQty(prodId, prefix) {
+            const input = document.getElementById(`qty-input-${prefix}-${prodId}`);
+            let val = parseInt(input.value) || 1;
+            input.value = val + 1;
+        }
+
+        function decrementCardQty(prodId, prefix) {
+            const input = document.getElementById(`qty-input-${prefix}-${prodId}`);
+            let val = parseInt(input.value) || 1;
+            if (val > 1) {
+                input.value = val - 1;
+            }
+        }
+
+        // --- 5. RENDER CHANNELS ---
+        
+        // Render 4 selected cards on the HOME page
+        function renderHomeFeatured() {
+            const grid = document.getElementById('home-featured-grid');
+            // Hum sirf pehle 4 product utha rahe hain featured ke liye
+            const featuredList = PRODUCTS.slice(0, 4);
+            
+            grid.innerHTML = featuredList.map(product => `
+                <div class="group relative flex flex-col bg-white border border-stone-200 p-4 transition-all hover:shadow-md">
+                    <!-- Image Area -->
+                    <div class="relative overflow-hidden bg-stone-100 aspect-square mb-4">
+                        <img alt="${product.name}" src="${product.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                        ${product.tag ? `
+                            <span class="absolute top-3 left-3 ${product.tag.includes('-') ? 'bg-amber-700' : 'bg-stone-900'} text-white text-[10px] px-2 py-0.5 font-medium tracking-wider uppercase">
+                                ${product.tag}
+                            </span>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Details -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-serif text-base text-stone-900 group-hover:text-amber-700 transition-colors">${product.name}</h3>
+                            <p class="text-xs text-stone-500 mt-0.5">${product.type}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-stone-900 font-semibold text-sm">$${product.price}</p>
+                            ${product.oldPrice ? `<p class="text-stone-400 text-[11px] line-through">$${product.oldPrice}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Card Quantity Controls (Home prefixed) -->
+                    <div class="flex items-center justify-between mb-3 border border-stone-200 text-xs">
+                        <span class="text-stone-500 px-3">Qty:</span>
+                        <div class="flex items-center">
+                            <button onclick="decrementCardQty(${product.id}, 'home')" class="px-3 py-2 hover:bg-stone-100 font-bold focus:outline-none">-</button>
+                            <input id="qty-input-home-${product.id}" type="number" value="1" min="1" class="w-8 text-center bg-transparent py-2 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-semibold">
+                            <button onclick="incrementCardQty(${product.id}, 'home')" class="px-3 py-2 hover:bg-stone-100 font-bold focus:outline-none">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart Button -->
+                    <button onclick="addSelectedToCart(${product.id}, 'home')" class="mt-auto w-full bg-stone-900 hover:bg-amber-700 text-white text-xs font-semibold tracking-wider uppercase py-3 transition-colors focus:outline-none">
+                        Add to Cart
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Render all 30+ cards on the SHOP page
+        function renderShopProducts() {
+            const grid = document.getElementById('shop-products-grid');
+            grid.innerHTML = PRODUCTS.map(product => `
+                <div class="group relative flex flex-col bg-white border border-stone-200 p-4 transition-all hover:shadow-md">
+                    <!-- Image Area -->
+                    <div class="relative overflow-hidden bg-stone-100 aspect-square mb-4">
+                        <img alt="${product.name}" src="${product.img}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out">
+                        ${product.tag ? `
+                            <span class="absolute top-3 left-3 ${product.tag.includes('-') ? 'bg-amber-700' : 'bg-stone-900'} text-white text-[10px] px-2 py-0.5 font-medium tracking-wider uppercase">
+                                ${product.tag}
+                            </span>
+                        ` : ''}
+                    </div>
+                    
+                    <!-- Details -->
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <h3 class="font-serif text-base text-stone-900 group-hover:text-amber-700 transition-colors">${product.name}</h3>
+                            <p class="text-xs text-stone-500 mt-0.5">${product.type}</p>
+                        </div>
+                        <div class="text-right">
+                            <p class="text-stone-900 font-semibold text-sm">$${product.price}</p>
+                            ${product.oldPrice ? `<p class="text-stone-400 text-[11px] line-through">$${product.oldPrice}</p>` : ''}
+                        </div>
+                    </div>
+
+                    <!-- Card Quantity Controls (Shop prefixed) -->
+                    <div class="flex items-center justify-between mb-3 border border-stone-200 text-xs">
+                        <span class="text-stone-500 px-3">Qty:</span>
+                        <div class="flex items-center">
+                            <button onclick="decrementCardQty(${product.id}, 'shop')" class="px-3 py-2 hover:bg-stone-100 font-bold focus:outline-none">-</button>
+                            <input id="qty-input-shop-${product.id}" type="number" value="1" min="1" class="w-8 text-center bg-transparent py-2 focus:outline-none [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none font-semibold">
+                            <button onclick="incrementCardQty(${product.id}, 'shop')" class="px-3 py-2 hover:bg-stone-100 font-bold focus:outline-none">+</button>
+                        </div>
+                    </div>
+
+                    <!-- Add to Cart Button -->
+                    <button onclick="addSelectedToCart(${product.id}, 'shop')" class="mt-auto w-full bg-stone-900 hover:bg-amber-700 text-white text-xs font-semibold tracking-wider uppercase py-3 transition-colors focus:outline-none">
+                        Add to Cart
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // --- 6. SHOPPING CART ENGINE ---
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            sidebar.classList.toggle('translate-x-full');
+        }
+
+        // Adds to cart with specified prefix ('home' or 'shop')
+        function addSelectedToCart(productId, prefix) {
+            const product = PRODUCTS.find(p => p.id === productId);
+            const qtyInput = document.getElementById(`qty-input-${prefix}-${productId}`);
+            const chosenQty = parseInt(qtyInput.value) || 1;
+
+            const existingItem = cart.find(item => item.id === productId);
+
+            if (existingItem) {
+                existingItem.quantity += chosenQty;
+            } else {
+                cart.push({ ...product, quantity: chosenQty });
+            }
+
+            // Reset selected card input back to 1
+            qtyInput.value = 1;
+
+            updateCartUI();
+            
+            // Open sidebar to show addition
+            const sidebar = document.getElementById('cart-sidebar');
+            if (sidebar.classList.contains('translate-x-full')) {
+                toggleCart();
+            }
+        }
+
+        // Changes quantity from inside the cart panel
+        function changeCartQuantity(productId, delta) {
+            const cartItem = cart.find(item => item.id === productId);
+            if (!cartItem) return;
+
+            cartItem.quantity += delta;
+            if (cartItem.quantity <= 0) {
+                cart = cart.filter(item => item.id !== productId);
+            }
+            updateCartUI();
+        }
+
+        // Remove item entirely from cart
+        function removeCartItem(productId) {
+            cart = cart.filter(item => item.id !== productId);
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const cartItemsContainer = document.getElementById('cart-items');
+            const cartCountBadge = document.getElementById('cart-count');
+            const cartTotalSpan = document.getElementById('cart-total');
+
+            const totalItems = cart.reduce((acc, item) => acc + item.quantity, 0);
+            
+            if (totalItems > 0) {
+                cartCountBadge.textContent = totalItems;
+                cartCountBadge.classList.remove('hidden');
+            } else {
+                cartCountBadge.classList.add('hidden');
+            }
+
+            if (cart.length === 0) {
+                cartItemsContainer.innerHTML = `<p id="empty-cart-msg" class="text-stone-500 text-center py-8">Your cart is empty.</p>`;
+                cartTotalSpan.textContent = "$0.00";
+                return;
+            }
+
+            // Render Cart Items list
+            cartItemsContainer.innerHTML = cart.map(item => `
+                <div class="flex items-center space-x-4 border-b border-stone-100 pb-4 relative">
+                    <img src="${item.img}" alt="${item.name}" class="w-16 h-16 object-cover bg-stone-100 flex-shrink-0">
+                    <div class="flex-1 min-w-0">
+                        <h4 class="font-serif text-sm text-stone-900 truncate">${item.name}</h4>
+                        <p class="text-xs text-stone-500">${item.type}</p>
+                        <p class="text-sm font-medium text-stone-900 mt-1">$${(item.price * item.quantity).toLocaleString()}</p>
+                    </div>
+                    <!-- Quantity Control Actions inside Sidebar -->
+                    <div class="flex items-center space-x-1 border border-stone-200">
+                        <button onclick="changeCartQuantity(${item.id}, -1)" class="px-2.5 py-1 hover:bg-stone-100 focus:outline-none text-xs font-bold">-</button>
+                        <span class="text-xs px-1.5 font-semibold text-stone-800">${item.quantity}</span>
+                        <button onclick="changeCartQuantity(${item.id}, 1)" class="px-2.5 py-1 hover:bg-stone-100 focus:outline-none text-xs font-bold">+</button>
+                    </div>
+                    <!-- Remove item button -->
+                    <button onclick="removeCartItem(${item.id})" class="text-stone-400 hover:text-red-600 ml-1" title="Remove">
+                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-5 h-5">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m14.74 9-.346 9m-4.788 0L9.26 9m9.968-3.21c.342.052.682.107 1.022.166m-1.022-.165L18.16 19.673a2.25 2.25 0 0 1-2.244 2.077H8.084a2.25 2.25 0 0 1-2.244-2.077L4.772 5.79m14.456 0a48.108 48.108 0 0 0-3.478-.397m-12 .562c.34-.059.68-.114 1.022-.165m0 0a48.11 48.11 0 0 1 3.478-.397m7.5 0v-.916c0-1.18-.91-2.164-2.09-2.201a51.964 51.964 0 0 0-3.32 0c-1.18.037-2.09 1.022-2.09 2.201v.916m7.5 0a48.667 48.667 0 0 0-7.5 0" />
+                        </svg>
+                    </button>
+                </div>
+            `).join('');
+
+            // Calculate overall Subtotal
+            const subtotal = cart.reduce((acc, item) => acc + (item.price * item.quantity), 0);
+            cartTotalSpan.textContent = `$${subtotal.toLocaleString()}`;
+        }
+
+        function checkout() {
+            if(cart.length === 0) {
+                alert("Your cart is empty! Add some gorgeous furniture first.");
+                return;
+            }
+            alert("Thank you for your order!");
+            cart = [];
+            updateCartUI();
+            toggleCart();
+        }
+
+        // --- 7. FORMS & UTILS ---
+        function handleNewsletter(e) {
+            e.preventDefault();
+            const emailInput = e.target.querySelector('input[type="email"]');
+            alert(`Thank you for subscribing with: ${emailInput.value}!`);
+            emailInput.value = '';
+        }
+
+        function handleContactSubmit(e) {
+            e.preventDefault();
+            alert("Thank you! Your message has been sent successfully.");
+            e.target.reset();
+        }
+
+        // --- 8. INITIALIZE APP ---
+        document.addEventListener("DOMContentLoaded", () => {
+            renderHomeFeatured();
+            renderShopProducts();
+        });
+    </script>
+</body>
+</html>
